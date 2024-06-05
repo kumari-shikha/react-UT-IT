@@ -11,7 +11,7 @@ root.render(
   </React.StrictMode>
 );
 
-//It's a full release from master
+//Full master release 2
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
