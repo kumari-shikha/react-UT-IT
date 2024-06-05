@@ -13,5 +13,5 @@ function App() {
   );
 }
 
-//It's a hotfix
+//Hotfix 2
 export default App;
