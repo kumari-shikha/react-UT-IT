@@ -1,69 +1,81 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import App from "./App";
 
-describe("Form UT tests", () => {
-  test("filling username and passwords fields", () => {
-    render(<App />);
-    const userNameNode = screen.getByLabelText("Username");
-    const passwordNode = screen.getByLabelText("Password");
-
-    expect(userNameNode).toBeInTheDocument();
-    expect(passwordNode).toBeInTheDocument();
-
-    fireEvent.change(userNameNode, {
-      target: { value: "Test User" },
-    });
-    fireEvent.change(passwordNode, {
-      target: { value: "1234" },
-    });
-
-    expect(userNameNode.value).toBe("Test User");
-    expect(passwordNode.value).toBe("1234");
-  });
-
-  test("find submit button", () => {
-    render(<App />);
+describe("Todo test suite", () => {
+  test("input field and button are present", () => {
+    render(<App/>);
+    const inputNode = screen.getByRole("textbox");
     const buttonNode = screen.getByRole("button");
+
+    expect(inputNode).toBeInTheDocument();
     expect(buttonNode).toBeInTheDocument();
-  });
+  })
 
-  test("test form submit with currect input values", () => {
-    const mockSubmit = jest.fn();
-
-    render(<App onSubmit={mockSubmit} />);
-
+  test("success on adding a new to-do", async () => {
+    render(<App/>);
+    const inputNode = screen.getByRole("textbox");
     const buttonNode = screen.getByRole("button");
+
+    expect(inputNode).toBeInTheDocument();
     expect(buttonNode).toBeInTheDocument();
 
-    const userNameNode = screen.getByLabelText("Username");
-    const passwordNode = screen.getByLabelText("Password");
-
-    expect(userNameNode).toBeInTheDocument();
-    expect(passwordNode).toBeInTheDocument();
-
-    fireEvent.change(userNameNode, {
-      target: { value: "Test User" },
-    });
-    fireEvent.change(passwordNode, {
-      target: { value: "1234" },
-    });
+    fireEvent.change(inputNode, {
+      target: {value: "Go to cafe"}
+    })
 
     fireEvent.click(buttonNode);
-    expect(mockSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        username: "Test User",
-        password: "1234"
-      })
-    );
-  });
+
+    const notification = await screen.findByText("Create Success");
+    expect(notification).toBeInTheDocument();
+    expect(screen.getByText("Go to cafe")).toBeInTheDocument();
+  })
+
+  test("failure on adding a new to-do without a text", async () => {
+    render(<App/>);
+    const inputNode = screen.getByRole("textbox");
+    const buttonNode = screen.getByRole("button");
+
+    expect(inputNode).toBeInTheDocument();
+    expect(buttonNode).toBeInTheDocument();
+
+    fireEvent.change(inputNode, {
+      target: {value: ""}
+    })
+
+    fireEvent.click(buttonNode);
+
+    const notification = await screen.findByText("Error");
+    expect(notification).toBeInTheDocument();
+  })
+
+  test("deleing a todo on click of delete icon", async () => {
+    render(<App/>);
+    const inputNode = screen.getByRole("textbox");
+    const buttonNode = screen.getByRole("button");
+    expect(inputNode).toBeInTheDocument();
+    expect(buttonNode).toBeInTheDocument();
+
+    fireEvent.change(inputNode, {
+      target: {value: "Go to cafe"}
+    })
+
+    fireEvent.click(buttonNode);
+    expect(screen.getByText("Go to cafe")).toBeInTheDocument();
+
+    const deleteNode = screen.getByTestId("delete-btn");
+    expect(deleteNode).toBeInTheDocument();
+
+    fireEvent.click(deleteNode);
+    const deleteNotification = await screen.findByText("deleted todo named Go to cafe");
+    expect(deleteNotification).toBeInTheDocument();
+    expect(screen.queryByText("Go to cafe")).toBeFalsy();
+  })
 });
 
 /*
-   TODO:
-    1. Fill in the username and password fields getByLabelText
-    2. type user name and password - fireEvent.change or userEvent.type
-    3. find the submit button - getByRole/findByRole
-    4. click the submit button - fireEvent.click or userEvent.click
-    5. add a assertion to check if submitted data is correct
-    6. mock onSubmit function to the App component and check if its getting called with correct username and password
+    check if elements renders and button, input box is present
+    stimulate add todo
+    on success assert on notification and check if inserted data present in ui
+    if failure assert failure notification and new row should not be created
+    if delete button clicked assert on notification and check if deleted data is not present in ui
   */

@@ -1,30 +1,85 @@
 import "./App.css";
+import { notification, Badge, Card, Button } from "antd";
+import { useState } from "react";
+import lodash from "lodash";
+import { DeleteOutlined } from "@ant-design/icons";
 
-function App({ onSubmit = () => {} }) {
+function App() {
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const { username, password } = event.target.elements;
+  const [todos, setTodos] = useState([]);
+  const [inputVal, setInputVal] = useState("");
 
-    onSubmit({
-      username: username.value,
-      password: password.value,
-    });
-  }
+  const clearInputVal = () => {
+    setInputVal("");
+  };
   return (
-    <form onSubmit={handleSubmit}>
+    <div className="App">
       <div>
-        <label htmlFor="username-field">Username</label>
-        <input id="username-field" name="username" type="text" />
+        <h1>Todo List</h1>
+
+        <input
+          type="text"
+          value={inputVal}
+          onChange={(e) => {
+            setInputVal(e.target.value);
+          }}
+        />
+        <button
+          type="submit"
+          onClick={() => {
+            if (inputVal === "") {
+              notification.error({
+                message: "Error",
+                description: "Error in creating new todo",
+              });
+              clearInputVal();
+            } else {
+              setTodos([
+                ...todos,
+                {
+                  id: lodash.uniqueId("uniqueId-"),
+                  name: inputVal,
+                },
+              ]);
+              clearInputVal();
+              notification.success({
+                message: "Create Success",
+                description: `created todo named ${inputVal}`,
+              });
+            }
+          }}
+        >
+          Add Todo
+        </button>
       </div>
-      <div>
-        <label htmlFor="password-field">Password</label>
-        <input id="password-field" name="password" type="password" />
+      <div style={{ maxWidth: "500px", marginLeft: "35%", marginTop: "5%" }}>
+        {todos.map((todo) => (
+          <div key={todo.id} style={{ marginTop: "20px" }}>
+            <Badge.Ribbon color="blue">
+              <Card title="Pushes open the window" size="small">
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  {todo.name}
+                  <Button
+                    data-testid="delete-btn"
+                    type="primary"
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                      notification.success({
+                        message: "Delete success",
+                        description: `deleted todo named ${todo.name}`,
+                      });
+                      setTodos(todos.filter((item) => item.id !== todo.id));
+                    }}
+                  />
+                </div>
+              </Card>
+            </Badge.Ribbon>
+          </div>
+        ))}
       </div>
-      <div>
-        <button type="submit">Submit</button>
-      </div>
-    </form>
+    </div>
   );
 }
 
