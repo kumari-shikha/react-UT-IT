@@ -1,15 +1,30 @@
-import './App.css';
-import { useState } from 'react';
+import "./App.css";
 
-function App() {
-  const [counter, setCounter] = useState(0);
+function App({ onSubmit = () => {} }) {
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const { username, password } = event.target.elements;
+
+    onSubmit({
+      username: username.value,
+      password: password.value,
+    });
+  }
   return (
-    <div className="App">
-      
-      <button id="increment" onClick={() => setCounter(count => count+1)}>Increment counter</button>
-      <button id="decrement" onClick={() => setCounter(count => count >0 ? count-1 : count)}>Decrement counter</button>
-      <h4 id="counter">Count {counter}</h4>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="username-field">Username</label>
+        <input id="username-field" name="username" type="text" />
+      </div>
+      <div>
+        <label htmlFor="password-field">Password</label>
+        <input id="password-field" name="password" type="password" />
+      </div>
+      <div>
+        <button type="submit">Submit</button>
+      </div>
+    </form>
   );
 }
 

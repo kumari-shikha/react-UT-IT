@@ -1,60 +1,69 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import App from "./App";
 
-describe("Counter UI testing", () => {
-  test("Initial count is 0 on render", () => {
+describe("Form UT tests", () => {
+  test("filling username and passwords fields", () => {
     render(<App />);
-    const counterElement = screen.getByText("Count 0");
-    expect(counterElement).toBeInTheDocument();
+    const userNameNode = screen.getByLabelText("Username");
+    const passwordNode = screen.getByLabelText("Password");
+
+    expect(userNameNode).toBeInTheDocument();
+    expect(passwordNode).toBeInTheDocument();
+
+    fireEvent.change(userNameNode, {
+      target: { value: "Test User" },
+    });
+    fireEvent.change(passwordNode, {
+      target: { value: "1234" },
+    });
+
+    expect(userNameNode.value).toBe("Test User");
+    expect(passwordNode.value).toBe("1234");
   });
 
-  test("increment & decrement buttons are present", () => {
+  test("find submit button", () => {
     render(<App />);
-    const incButton = screen.getByText("Increment counter");
-    expect(incButton).toBeInTheDocument();
-
-    const decButton = screen.getByText("Decrement counter");
-    expect(decButton).toBeInTheDocument();
+    const buttonNode = screen.getByRole("button");
+    expect(buttonNode).toBeInTheDocument();
   });
 
-  test("count values and counter button dependency", () => {
-    render(<App />);
+  test("test form submit with currect input values", () => {
+    const mockSubmit = jest.fn();
 
-    const incButton = screen.getByText("Increment counter");
-    const decButton = screen.getByText("Decrement counter");
-    fireEvent.click(incButton);
-    fireEvent.click(incButton);
-    expect(screen.getByRole("heading")).toHaveTextContent("2");
+    render(<App onSubmit={mockSubmit} />);
 
-    fireEvent.click(decButton);
-    expect(screen.getByRole("heading")).toHaveTextContent("1");
+    const buttonNode = screen.getByRole("button");
+    expect(buttonNode).toBeInTheDocument();
 
-    fireEvent.click(decButton);
-    expect(screen.getByRole("heading")).toHaveTextContent("0");
+    const userNameNode = screen.getByLabelText("Username");
+    const passwordNode = screen.getByLabelText("Password");
 
-    fireEvent.click(decButton);
-    expect(screen.getByRole("heading")).toHaveTextContent("0");
+    expect(userNameNode).toBeInTheDocument();
+    expect(passwordNode).toBeInTheDocument();
+
+    fireEvent.change(userNameNode, {
+      target: { value: "Test User" },
+    });
+    fireEvent.change(passwordNode, {
+      target: { value: "1234" },
+    });
+
+    fireEvent.click(buttonNode);
+    expect(mockSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        username: "Test User",
+        password: "1234"
+      })
+    );
   });
 });
 
 /*
-  TODO:
-    assert if initial count value is 0 on render
-    assert if increment button is present
-    assert if decrement button is present
-    click increment button twice
-    assert if count value is 2
-    click decrement button once
-    assert if count value is 1
-    click decrement button once
-    assert if count value is 0
-    click decrement button once
-    assert if count value is 0 if below 0 it wont decrement
-
-    hints:
-    for getting dom elements use getBy/queryBy from screen
-    use getByRole/findByRole query to find 'increment' button
-    use fireevent or user event to click
-    make assertions using expect with screen.getBy or queryBy
-    repeat the above steps dependent on test case requirement in todo
+   TODO:
+    1. Fill in the username and password fields getByLabelText
+    2. type user name and password - fireEvent.change or userEvent.type
+    3. find the submit button - getByRole/findByRole
+    4. click the submit button - fireEvent.click or userEvent.click
+    5. add a assertion to check if submitted data is correct
+    6. mock onSubmit function to the App component and check if its getting called with correct username and password
   */
